@@ -15,35 +15,44 @@ import {
 } from 'react-native';
 import apiClient from '../api/apiClient';
 import { saveToken } from '../utils/storage';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
 
-export default function LoginScreen({ setIsLoggedIn }: { setIsLoggedIn: (v: boolean) => void }) {
+export default function LoginScreen() {
   const emailRef = useRef('');
   const passwordRef = useRef('');
+  const navigation = useNavigation<NativeStackNavigationProp<any>>();
+  const dispatch = useDispatch();
 
   const handleLogin = async () => {
     const email = emailRef.current.trim();
     const password = passwordRef.current;
 
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Alert.alert('Error', 'All inputs required.');
       return;
     }
 
     try {
       const response = await apiClient.post('/users/login', { email, password });
-      // console.log('🔐 Login response:', response.data);
+
+      console.log(response);
+      console.log(response.data);
+      console.log(response?.data?.data?.token);
 
       const token = response?.data?.data?.token;
+
       if (token) {
         await saveToken(token);
-        apiClient.defaults.headers.common.Authorization = `Bearer ${token}`; // ✅ future requests
-        setIsLoggedIn(true); // ✅ triggers AppStack
+        apiClient.defaults.headers.common.Authorization = `Bearer ${token}`;
+        dispatch({ type: 'LOGIN', token });
       } else {
-        Alert.alert('Error', 'Login failed: no token received');
+        Alert.alert('Error', 'Login failed.');
       }
     } catch (error: any) {
       console.error('Login error:', error.response?.data?.message || error.message);
-     }
+    }
   };
 
   return (
@@ -59,7 +68,7 @@ export default function LoginScreen({ setIsLoggedIn }: { setIsLoggedIn: (v: bool
             <TextInput
               placeholder="Email"
               style={styles.input}
-              onChangeText={(text) => (emailRef.current = text)}
+              onChangeText={text => (emailRef.current = text)}
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="email-address"
@@ -69,7 +78,7 @@ export default function LoginScreen({ setIsLoggedIn }: { setIsLoggedIn: (v: bool
             <TextInput
               placeholder="Password"
               style={styles.input}
-              onChangeText={(text) => (passwordRef.current = text)}
+              onChangeText={text => (passwordRef.current = text)}
               secureTextEntry
               autoCorrect={false}
               textContentType="password"
@@ -77,6 +86,10 @@ export default function LoginScreen({ setIsLoggedIn }: { setIsLoggedIn: (v: bool
 
             <View style={styles.buttonSpacing}>
               <Button title="Login" onPress={handleLogin} />
+            </View>
+
+            <View style={styles.buttonSpacing}>
+              <Button title="Go to Register" onPress={() => navigation.navigate('Register')} />
             </View>
           </ScrollView>
         </TouchableWithoutFeedback>
@@ -86,17 +99,9 @@ export default function LoginScreen({ setIsLoggedIn }: { setIsLoggedIn: (v: bool
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
-  keyboardAvoiding: {
-    flex: 1,
-  },
-  container: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
+  safeArea: { flex: 1 },
+  keyboardAvoiding: { flex: 1 },
+  container: { flexGrow: 1, justifyContent: 'center', padding: 20 },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',

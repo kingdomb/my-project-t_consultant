@@ -11,15 +11,18 @@ import {
   Text,
   StyleSheet,
   Alert,
-  View
+  View,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import apiClient from '../api/apiClient';
 import { saveToken } from '../utils/storage';
+import { useDispatch } from 'react-redux';
 
-export default function RegisterScreen({ setIsLoggedIn }: { setIsLoggedIn: (v: boolean) => void }) {
+export default function RegisterScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
+  const dispatch = useDispatch();
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,20 +35,17 @@ export default function RegisterScreen({ setIsLoggedIn }: { setIsLoggedIn: (v: b
 
     try {
       const response = await apiClient.post('/users', { name, email, password });
-      console.log('📦 Raw response:', response);
-      console.log('📄 response.data:', response.data);
-      console.log('🔑 response.data.data.token:', response?.data?.data?.token);
-
       const token = response?.data?.data?.token;
+
       if (token) {
         await saveToken(token);
-        setIsLoggedIn(true); // This will trigger navigator to switch to AppStack
+        apiClient.defaults.headers.common.Authorization = `Bearer ${token}`;
+        dispatch({ type: 'LOGIN' });
       } else {
-        Alert.alert('Error', 'Registration failed: no token received');
+        Alert.alert('Error', 'Registration failed no token received');
       }
     } catch (error: any) {
       console.error('Registration error:', error);
-      Alert.alert('Registration Error', error.response?.data?.message || error.message);
     }
   };
 
@@ -56,10 +56,7 @@ export default function RegisterScreen({ setIsLoggedIn }: { setIsLoggedIn: (v: b
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <ScrollView
-            contentContainerStyle={styles.container}
-            keyboardShouldPersistTaps="handled"
-          >
+          <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
             <Text style={styles.title}>Register</Text>
 
             <TextInput
@@ -109,17 +106,9 @@ export default function RegisterScreen({ setIsLoggedIn }: { setIsLoggedIn: (v: b
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
-  keyboardAvoiding: {
-    flex: 1,
-  },
-  container: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
+  safeArea: { flex: 1 },
+  keyboardAvoiding: { flex: 1 },
+  container: { flexGrow: 1, justifyContent: 'center', padding: 20 },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -136,5 +125,3 @@ const styles = StyleSheet.create({
     marginVertical: 6,
   },
 });
-
-// ScrollView does not use flex layout by default, you have to use flexGrow: 1 on contentContainerStyle if you want the scrollable content to stretch and center vertically when there's not much content.
