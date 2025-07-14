@@ -1,4 +1,4 @@
-import { createStore } from 'redux';
+import { legacy_createStore as createStore } from 'redux';
 
 // initial global state of your Redux store
 const initialState = {
