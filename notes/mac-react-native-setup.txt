@@ -1,0 +1,397 @@
+✅ React Native Dev Environment Setup on macOS (Verified by KB)
+
+1. Install Homebrew
+----------------------
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+/Users/bmajor/Desktop/mac-react-native-setup.txt
+
+2. Add Homebrew to PATH
+-------------------------
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+source ~/.zprofile
+
+3. Install rbenv + Ruby 3.1.0
+-----------------------------
+brew install rbenv ruby-build
+rbenv install 3.1.0
+rbenv global 3.1.0
+
+Add to ~/.zprofile:
+--------------------
+nano ~/.zprofile
+
+Add:
+eval "$(rbenv init - zsh)"
+
+Then:
+- Ctrl + O (save), Enter
+- Ctrl + X (exit)
+- source ~/.zprofile
+
+ruby -v  # should show 3.1.0
+
+4. Install CocoaPods
+---------------------
+gem install cocoapods
+pod --version
+
+5. Install Git
+--------------
+brew install git
+git --version
+
+6. Install Zulu JDK 17
+----------------------
+brew install --cask zulu17
+
+Set JAVA_HOME:
+export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+echo 'export JAVA_HOME=$(/usr/libexec/java_home -v 17)' >> ~/.zprofile
+source ~/.zprofile
+
+7. Install Android Studio
+--------------------------
+- Download from https://developer.android.com/studio
+- Use Apple Chip version
+- Move app to /Applications if prompted
+- Open and install all SDK components
+
+Verify SDK:
+ls ~/Library/Android/sdk
+
+8. Set Android Environment Variables
+-------------------------------------
+nano ~/.zprofile
+
+Add:
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/tools/bin
+
+Then save and exit:
+- Ctrl + O, Enter
+- Ctrl + X
+source ~/.zprofile
+
+9. Install Watchman
+--------------------
+brew install watchman
+watchman --version
+
+10. Install NVM + Node 20
+--------------------------
+brew install nvm
+mkdir ~/.nvm
+
+nano ~/.zprofile
+
+Add:
+export NVM_DIR="$HOME/.nvm"
+[ -s "$(brew --prefix nvm)/nvm.sh" ] && \. "$(brew --prefix nvm)/nvm.sh"
+
+Then:
+- Ctrl + O, Enter
+- Ctrl + X
+- source ~/.zprofile
+
+nvm install 20
+nvm use 20
+nvm alias default 20
+
+node -v
+npm -v
+
+11. Install Yarn
+-----------------
+brew install yarn
+yarn --version
+
+12. Install VS Code
+--------------------
+- Download from https://code.visualstudio.com/
+- Drag to Applications
+- Open VS Code
+
+Enable `code` command:
+- Cmd + Shift + P → type: Shell Command: Install 'code' command in PATH
+code --version
+
+13. Set Up Prettier in VS Code
+-------------------------------
+- Cmd + Shift + X → install Prettier - Code formatter
+- Cmd + , → Settings
+    - Search "default formatter" → set to Prettier
+    - Search "format on save" → enable
+
+14. Install TeamViewer
+-----------------------
+https://www.teamviewer.com/en/download/mac/
+
+15. Install AnyDesk
+--------------------
+https://anydesk.com/en/downloads/mac-os
+
+16. Download Xcode from App Store
+----------------------------------
+- Open App Store
+- Install latest version of Xcode
+
+17. Open Xcode First Time to Accept License
+--------------------------------------------
+- Open Xcode at least once
+- Accept the license agreement
+- Let it install additional components if prompted
+
+18. Install Command Line Tools (if not already prompted)
+----------------------------------------------------------
+xcode-select --install
+
+19. Create a New React Native Project
+--------------------------------------
+cd ~/DevToolbox/project_code
+npx @react-native-community/cli init MyAwesomeApp
+
+20. Change Directory Into Your Project
+---------------------------------------
+cd MyAwesomeApp
+
+21. Install Required iOS Pods
+------------------------------
+cd ios
+pod install
+cd ..
+
+21A. 🛠 Fix: CocoaPods Missing File Errors (If You See xcodebuild Code 65)
+---------------------------------------------------------------------------
+If your build fails with missing `.xcconfig` or `.xcfilelist` files, run the CocoaPods install again to fix broken or missing pod dependencies.
+
+Steps:
+cd ios
+pod install
+cd ..
+
+💡 If you get a `pod: command not found` error, install CocoaPods:
+sudo gem install cocoapods
+
+Then try again:
+cd ios
+pod install
+cd ..
+
+22. Run the iOS App in Simulator
+---------------------------------
+npx react-native run-ios
+
+23. Uninstall App from iOS Simulator
+-------------------------------------
+📱 To uninstall the app from the simulator:
+Hold down the app icon and click (X) as you would on a physical device.
+
+24. Add Metro Config File (if missing)
+---------------------------------------
+Most projects generate this automatically. If it’s missing, create this in your project root:
+
+metro.config.js
+----------------
+const { getDefaultConfig } = require('@react-native/metro-config');
+module.exports = getDefaultConfig(__dirname);
+
+25. Set Correct Node Version Before Running
+--------------------------------------------
+Always use the correct Node version before running your project:
+
+nvm use 20
+
+Check you're on the right version:
+
+node -v  # Should return v20.x.x
+
+If you're not using the default yet, set it once:
+
+nvm alias default 20
+
+26. Final Project Startup Checklist (Each Time You Return)
+------------------------------------------------------------
+cd MyAwesomeApp
+nvm use 20
+npx react-native run-ios
+
+(Optional) If you prefer to run Metro manually:
+npx react-native start
+
+✅ If the app launches in the iOS Simulator and shows the welcome screen, your setup is complete and working.
+
+27. Enable Fast Refresh and Debugging
+--------------------------------------
+Once the iOS Simulator is running:
+
+- Shake the device (or press `Cmd + D`) to open the React Native dev menu
+- Enable "Fast Refresh" if not already on
+- You can enable "Debug with Chrome" or "Debug with Flipper" as needed
+
+28. Install VS Code Extensions (Optional)
+------------------------------------------
+Open VS Code and install helpful extensions:
+
+- React Native Tools (for debugging and IntelliSense)
+- ESLint (for linting)
+- Path Intellisense
+- GitLens
+
+29. Setup ESLint + Prettier (Optional for Code Style)
+-------------------------------------------------------
+To enforce code style and catch errors early:
+
+npm install --save-dev eslint prettier eslint-config-prettier eslint-plugin-react eslint-plugin-react-hooks
+
+Then create a basic `.eslintrc.json`:
+
+{
+  "extends": ["react-native", "plugin:react-hooks/recommended", "prettier"]
+}
+
+30. Optional: Clean Derived Data (when Xcode build breaks)
+------------------------------------------------------------
+rm -rf ~/Library/Developer/Xcode/DerivedData
+
+31. Optional: Run Android App
+-------------------------------
+Only if Android Studio is installed and configured:
+
+Start an emulator via Android Studio or CLI:
+
+emulator -list-avds  
+emulator -avd <your_avd_name>
+
+Then run:
+npx react-native run-android
+
+
+✅ TypeScript Setup for React Native Project (Add to Existing App)
+
+1. Navigate to Your Project
+----------------------------
+cd MyAwesomeApp
+
+2. Install TypeScript and Type Definitions
+------------------------------------------
+npm install --save-dev typescript @types/react @types/react-native
+
+3. Create tsconfig.json
+-------------------------
+At the root of your project, create a file named `tsconfig.json` with the following content:
+
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "jsx": "react-native",
+    "strict": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowJs": true
+  },
+  "exclude": [
+    "node_modules",
+    "babel.config.js",
+    "metro.config.js",
+    "jest.config.js"
+  ]
+}
+
+4. Rename JavaScript Files
+---------------------------
+Rename the following:
+- `App.js` → `App.tsx`
+- Any files with JSX → `.tsx`
+- Plain JS utility files → `.ts`
+
+Use:
+mv App.js App.tsx
+
+5. Verify Babel Config
+-----------------------
+Make sure your `babel.config.js` file includes this:
+
+module.exports = {
+  presets: ['module:metro-react-native-babel-preset'],
+};
+
+6. Optional: Check for Type Errors
+-----------------------------------
+To run the TypeScript compiler manually (without building the app):
+
+npx tsc --noEmit
+
+7. Run the App Normally
+------------------------
+Start Metro:
+npx react-native start
+
+In a separate terminal:
+npx react-native run-ios   # or run-android if on Android
+
+8. Add ESLint with TypeScript Support (Optional but Recommended)
+------------------------------------------------------------------
+Install ESLint packages:
+
+npm install --save-dev eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint-plugin-react eslint-plugin-react-native
+
+9. Create ESLint Config File
+-----------------------------
+At the root of your project, create a `.eslintrc.json` file:
+
+{
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:react-native/all"
+  ],
+  "plugins": [
+    "@typescript-eslint",
+    "react",
+    "react-native"
+  ],
+  "env": {
+    "react-native/react-native": true
+  },
+  "rules": {
+    "react-native/no-inline-styles": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off"
+  }
+}
+
+10. Optional: Create a .eslintignore File
+------------------------------------------
+To ignore unnecessary files during linting, create `.eslintignore`:
+
+node_modules
+babel.config.js
+metro.config.js
+jest.config.js
+
+11. Enable VS Code TypeScript + ESLint Integration
+----------------------------------------------------
+- Open VS Code
+- Install the following extensions:
+  - ESLint
+  - Prettier (if not already installed)
+- Ensure VS Code uses the project version of TypeScript (optional)
+
+12. Restart the App
+---------------------
+Restart your dev server and app:
+
+npx react-native start
+npx react-native run-ios
+
+---
+
+### Your updated ~/.zprofile content should look like this:
+
